@@ -1,0 +1,26 @@
+-- Migration: 005_create_services_table.sql
+CREATE TABLE IF NOT EXISTS `services` (
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `category_id` BIGINT UNSIGNED NOT NULL,
+  `provider_id` BIGINT UNSIGNED NULL,
+  `provider_service_id` VARCHAR(64) NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT NULL,
+  `service_type` VARCHAR(64) NOT NULL DEFAULT 'default',
+  `provider_cost` DECIMAL(18,8) NOT NULL DEFAULT 0.00000000,
+  `provider_currency` VARCHAR(10) NOT NULL DEFAULT 'USD',
+  `margin_type` ENUM('percentage', 'fixed') NOT NULL DEFAULT 'percentage',
+  `margin_value` DECIMAL(18,8) NOT NULL DEFAULT 20.00000000,
+  `rate` DECIMAL(18,8) NOT NULL DEFAULT 0.00000000,
+  `min_quantity` INT NOT NULL DEFAULT 10,
+  `max_quantity` INT NOT NULL DEFAULT 10000,
+  `drip_feed` TINYINT(1) NOT NULL DEFAULT 0,
+  `refill` TINYINT(1) NOT NULL DEFAULT 0,
+  `cancel` TINYINT(1) NOT NULL DEFAULT 0,
+  `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_services_cat_status` (`category_id`, `status`),
+  INDEX `idx_services_provider` (`provider_id`, `provider_service_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

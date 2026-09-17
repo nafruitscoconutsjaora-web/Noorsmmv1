@@ -1,0 +1,6 @@
+{
+  "name": "Production SMM Panel",
+  "description": "A full-featured, secure, database-driven SMM Panel built with native PHP 8, PDO, MySQL, and Tailwind CSS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
