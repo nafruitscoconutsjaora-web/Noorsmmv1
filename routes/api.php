@@ -15,4 +15,6 @@ $router->group(['middleware' => [RateLimitMiddleware::class]], function ($router
 
     // Payment Gateway Webhooks
     $router->post('/webhook/razorpay', [WebhookController::class, 'razorpay']);
+    $router->post('/webhook/{gateway}', [WebhookController::class, 'handleGatewayWebhook']);
+    $router->get('/webhook/{gateway}', [WebhookController::class, 'handleGatewayWebhook']);
 });

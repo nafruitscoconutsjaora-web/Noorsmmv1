@@ -132,6 +132,11 @@ class Database
         return $stmt;
     }
 
+    public function prepare(string $sql): \PDOStatement
+    {
+        return $this->getConnection()->prepare($sql);
+    }
+
     public function fetchAll(string $sql, array $params = []): array
     {
         return $this->query($sql, $params)->fetchAll();

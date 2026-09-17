@@ -76,4 +76,14 @@ class ApiManagementRepository
             'logs' => $logs,
         ];
     }
+
+    public function getApiUsers(): array
+    {
+        $sql = "SELECT u.id, u.username, u.email, u.api_key, u.balance,
+                (SELECT COUNT(*) FROM `orders` WHERE user_id = u.id) as orders_count
+                FROM `users` u
+                WHERE u.api_key IS NOT NULL AND u.api_key != ''
+                ORDER BY orders_count DESC";
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

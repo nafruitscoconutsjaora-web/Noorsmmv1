@@ -32,6 +32,7 @@ class AdminMaintenanceController extends BaseController
             'backups' => $backups,
             'stats' => $stats,
             'is_maintenance' => $isMaintenance,
+            'maintenance_active' => $isMaintenance,
         ], 'admin');
     }
 

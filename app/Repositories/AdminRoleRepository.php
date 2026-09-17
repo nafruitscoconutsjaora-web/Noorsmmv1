@@ -58,7 +58,7 @@ class AdminRoleRepository
 
     public function getStaffMembers(): array
     {
-        $sql = "SELECT a.*, r.name as role_name 
+        $sql = "SELECT a.*, r.name as role_name, r.slug as role 
                 FROM `admins` a 
                 JOIN `roles` r ON a.role_id = r.id 
                 ORDER BY a.created_at ASC";

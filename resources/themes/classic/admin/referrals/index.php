@@ -1,3 +1,10 @@
+<?php
+$stats = $stats ?? [
+    'total_referrals' => count($referrals ?? []),
+    'total_commission_paid' => 0,
+    'commission_rate' => $commission_rate ?? 5.0,
+];
+?>
 <div class="space-y-6 max-w-6xl mx-auto" id="admin-referral-management">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -119,7 +119,7 @@ class Router
                 if (!method_exists($controller, $method)) {
                     throw new NotFoundException("Method {$method} not found on {$class}");
                 }
-                $result = call_user_func_array([$controller, $method], array_merge([$req], $params));
+                $result = call_user_func_array([$controller, $method], array_merge([$req], array_values($params)));
             } else {
                 throw new \InvalidArgumentException("Invalid route handler");
             }

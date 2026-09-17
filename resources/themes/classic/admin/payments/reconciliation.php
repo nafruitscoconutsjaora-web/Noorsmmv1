@@ -45,9 +45,9 @@
                                         <?= e($p['username']) ?>
                                     </a>
                                 </td>
-                                <td class="py-3 px-4 uppercase text-[10px] font-bold text-slate-300"><?= e($p['method']) ?></td>
-                                <td class="py-3 px-4 font-mono text-slate-400 truncate max-w-xs" title="<?= e($p['transaction_id'] ?? '') ?>">
-                                    <?= e($p['transaction_id'] ?: 'Pending / None') ?>
+                                <td class="py-3 px-4 uppercase text-[10px] font-bold text-slate-300"><?= e($p['gateway'] ?? $p['method'] ?? 'N/A') ?></td>
+                                <td class="py-3 px-4 font-mono text-slate-400 truncate max-w-xs" title="<?= e($p['transaction_id'] ?? $p['payment_id'] ?? '') ?>">
+                                    <?= e($p['transaction_id'] ?? $p['payment_id'] ?? $p['order_id'] ?? 'Pending / None') ?>
                                 </td>
                                 <td class="py-3 px-4 text-right font-bold text-emerald-400 font-mono">₹<?= number_format((float)$p['amount'], 2) ?></td>
                                 <td class="py-3 px-4 text-right font-mono text-slate-400">₹<?= number_format((float)($p['net_amount'] ?? $p['amount']), 2) ?></td>

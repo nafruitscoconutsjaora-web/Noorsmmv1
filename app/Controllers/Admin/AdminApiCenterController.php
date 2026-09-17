@@ -21,10 +21,12 @@ class AdminApiCenterController extends BaseController
     public function index(Request $request): Response
     {
         $data = $this->apiRepo->getAdminGlobalStats();
+        $apiUsers = $this->apiRepo->getApiUsers();
 
         return view('admin/api/index', [
             'stats' => $data['stats'],
             'logs' => $data['logs'],
+            'api_users' => $apiUsers,
         ], 'admin');
     }
 }

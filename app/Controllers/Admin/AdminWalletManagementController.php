@@ -43,9 +43,22 @@ class AdminWalletManagementController extends BaseController
         // Fetch all users for manual adjustment modal/form
         $users = $this->db->query("SELECT id, username, balance FROM `users` WHERE `status` = 'active' ORDER BY username ASC")->fetchAll(PDO::FETCH_ASSOC);
 
+        $statsRow = $this->db->query("SELECT 
+            COALESCE(SUM(balance), 0) as total_user_balance,
+            COUNT(*) as total_users,
+            COALESCE(AVG(balance), 0) as avg_balance
+            FROM `users`")->fetch(PDO::FETCH_ASSOC);
+
+        $stats = [
+            'total_user_balance' => (float)($statsRow['total_user_balance'] ?? 0),
+            'total_users' => (int)($statsRow['total_users'] ?? 0),
+            'avg_balance' => (float)($statsRow['avg_balance'] ?? 0),
+        ];
+
         return view('admin/wallets/index', [
             'transactions' => $transactions,
             'users' => $users,
+            'stats' => $stats,
             'page' => $page,
             'total_pages' => $totalPages,
             'total' => $total,

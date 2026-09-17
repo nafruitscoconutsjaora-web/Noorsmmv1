@@ -58,8 +58,12 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
     $router->post('/admin/users/{id}/balance', [AdminUserController::class, 'adjustBalance'], [CsrfMiddleware::class]);
     $router->post('/admin/users/{id}/status', [AdminUserController::class, 'updateStatus'], [CsrfMiddleware::class]);
 
-    // Payments
+    // Payments & Payment Gateways Management
     $router->get('/admin/payments', [AdminPaymentController::class, 'index']);
+    $router->get('/admin/gateways', [\App\Controllers\Admin\AdminGatewayController::class, 'index']);
+    $router->get('/admin/gateways/{id}/edit', [\App\Controllers\Admin\AdminGatewayController::class, 'edit']);
+    $router->post('/admin/gateways/{id}/update', [\App\Controllers\Admin\AdminGatewayController::class, 'update'], [CsrfMiddleware::class]);
+    $router->post('/admin/gateways/{id}/toggle', [\App\Controllers\Admin\AdminGatewayController::class, 'toggle'], [CsrfMiddleware::class]);
 
     // Support Tickets
     $router->get('/admin/tickets', [AdminTicketController::class, 'index']);

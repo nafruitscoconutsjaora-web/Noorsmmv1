@@ -22,7 +22,8 @@ class AdminReconciliationController extends BaseController
     public function index(Request $request): Response
     {
         // Fetch recent payments with user data
-        $sql = "SELECT p.*, u.username, u.email 
+        $sql = "SELECT p.*, p.gateway as method, COALESCE(p.payment_id, p.order_id) as transaction_id, 
+                       (p.amount - COALESCE(p.fee, 0)) as net_amount, u.username, u.email 
                 FROM `payments` p 
                 JOIN `users` u ON p.user_id = u.id 
                 ORDER BY p.created_at DESC 
@@ -30,7 +31,7 @@ class AdminReconciliationController extends BaseController
         $payments = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
         // Fetch webhook logs if any
-        $webhooks = $this->db->query("SELECT * FROM `webhook_logs` ORDER BY `created_at` DESC LIMIT 25")->fetchAll(PDO::FETCH_ASSOC);
+        $webhooks = $this->db->query("SELECT * FROM `payment_webhook_logs` ORDER BY `created_at` DESC LIMIT 25")->fetchAll(PDO::FETCH_ASSOC);
 
         // Total reconciled vs pending
         $reconciliationStats = $this->db->query("SELECT 

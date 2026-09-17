@@ -26,10 +26,23 @@ class LoyaltyController extends BaseController
 
         // Conversion rate: 100 points = 1 INR
         $pointValueInr = 0.01;
-        $redeemableValue = $account['points'] * $pointValueInr;
+        $points = (int)($account['points'] ?? 0);
+        $lifetimeSpent = (float)($account['lifetime_spent'] ?? 0);
+        $redeemableValue = $points * $pointValueInr;
+        $tierName = strtolower($account['tier'] ?? 'bronze');
+
+        $tier = [
+            'name' => $tierName,
+            'threshold' => $tierName === 'platinum' ? 100000 : ($tierName === 'gold' ? 25000 : ($tierName === 'silver' ? 5000 : 0)),
+            'next_threshold' => $tierName === 'platinum' ? null : ($tierName === 'gold' ? 100000 : ($tierName === 'silver' ? 25000 : 5000)),
+            'next_tier' => $tierName === 'platinum' ? null : ($tierName === 'gold' ? 'platinum' : ($tierName === 'silver' ? 'gold' : 'silver')),
+        ];
 
         return view('user/rewards/index', [
             'account' => $account,
+            'tier' => $tier,
+            'points' => $points,
+            'lifetimeSpent' => $lifetimeSpent,
             'transactions' => $transactions,
             'point_value_inr' => $pointValueInr,
             'redeemable_value' => $redeemableValue,

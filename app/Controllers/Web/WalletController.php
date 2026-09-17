@@ -8,6 +8,7 @@ use App\Controllers\BaseController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
+use App\Exceptions\AppException;
 use App\Repositories\PaymentRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\WalletRepository;
@@ -40,11 +41,13 @@ class WalletController extends BaseController
         $page = max(1, (int)$request->query('page', 1));
         $transactions = $this->walletRepo->getUserTransactions((int)$user['id'], $page, 15);
         $payments = $this->paymentRepo->getUserPayments((int)$user['id'], 1, 10);
+        $activeGateways = $this->paymentService->getActiveGateways();
 
         return view('user/wallet/index', [
             'user' => $freshUser,
             'transactions' => $transactions,
             'payments' => $payments,
+            'activeGateways' => $activeGateways,
             'razorpay_key' => config('payments.razorpay.key_id') ?: setting('razorpay_key_id', ''),
         ], 'user');
     }
@@ -52,40 +55,58 @@ class WalletController extends BaseController
     public function initiatePayment(Request $request): Response
     {
         $data = $this->validate($request->all(), [
-            'amount' => 'required|numeric|min:10',
+            'amount' => 'required|numeric|min:1',
         ]);
 
+        $gateway = strtolower(trim((string)$request->input('gateway', 'razorpay')));
         $user = $this->user();
-        $res = $this->paymentService->initiateRazorpay((int)$user['id'], (string)$data['amount'], 'INR');
+
+        try {
+            $res = $this->paymentService->initiatePayment((int)$user['id'], $gateway, (float)$data['amount']);
+        } catch (AppException $e) {
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'error' => $e->getMessage()], 400);
+            }
+            Session::setFlash('error', $e->getMessage());
+            return $this->redirect('/wallet');
+        }
 
         if ($request->isAjax()) {
             return $this->json($res);
         }
 
+        // Handle action types
+        $actionType = $res['action_type'] ?? 'sdk';
+
+        if ($actionType === 'redirect' && !empty($res['redirect_url'])) {
+            return $this->redirect($res['redirect_url']);
+        }
+
         return view('user/wallet/checkout', [
             'intent' => $res,
+            'gateway' => $gateway,
             'user' => $user,
         ], 'user');
     }
 
     public function verifyPayment(Request $request): Response
     {
-        $gatewayOrderId = (string)$request->input('razorpay_order_id');
-        $paymentId = (string)$request->input('razorpay_payment_id');
-        $signature = (string)$request->input('razorpay_signature');
-
-        if (empty($gatewayOrderId) || empty($paymentId)) {
-            Session::setFlash('error', 'Payment verification failed: missing payment identifiers.');
-            return $this->redirect('/wallet');
+        $gateway = (string)($request->input('gateway') ?: $request->query('gateway', ''));
+        if (empty($gateway)) {
+            if ($request->has('razorpay_order_id') || $request->has('razorpay_payment_id')) {
+                $gateway = 'razorpay';
+            } else {
+                $gateway = 'razorpay';
+            }
         }
 
-        $success = $this->paymentService->verifyRazorpayPayment($gatewayOrderId, $paymentId, $signature);
+        $success = $this->paymentService->verifyPayment($gateway, $request);
         if ($success) {
             $user = $this->user();
             $this->authService->refreshUserSession((int)$user['id']);
-            Session::setFlash('success', 'Payment successful! Funds have been credited to your wallet.');
+            Session::setFlash('success', 'Payment verified successfully! Funds have been credited to your wallet balance.');
         } else {
-            Session::setFlash('error', 'Payment signature verification failed. If money was debited, please contact support.');
+            Session::setFlash('error', 'Payment verification was not successful. If money was debited, it will be credited automatically or please contact support.');
         }
 
         return $this->redirect('/wallet');
@@ -112,13 +133,15 @@ class WalletController extends BaseController
         $paymentDbId = $this->paymentRepo->create([
             'user_id' => $user['id'],
             'gateway' => 'razorpay_test',
-            'transaction_id' => $fakeTxnId,
-            'gateway_order_id' => $fakeOrderId,
+            'order_id' => $fakeOrderId,
+            'payment_id' => $fakeTxnId,
             'amount' => $data['amount'],
             'fee' => '0.00000000',
+            'bonus' => '0.00000000',
+            'wallet_credit' => $data['amount'],
             'currency' => 'INR',
             'status' => 'pending',
-            'raw_payload' => json_encode(['test_mode' => true]),
+            'payload' => json_encode(['test_mode' => true]),
         ]);
 
         // Credit to wallet

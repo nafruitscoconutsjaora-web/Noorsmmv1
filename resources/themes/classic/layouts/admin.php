@@ -110,6 +110,10 @@
                 <span class="text-rose-400">⚖️</span>
                 <span>Reconciliation</span>
             </a>
+            <a href="/admin/gateways" class="<?= is_active_route(['/admin/gateways'], $admAct, $admInact) ?>">
+                <span class="text-rose-400">⚡</span>
+                <span>Payment Gateways</span>
+            </a>
             <a href="/admin/analytics" class="<?= is_active_route('/admin/analytics', $admAct, $admInact, ['/admin/analytics/users']) ?>">
                 <span class="text-rose-400">📊</span>
                 <span>BI Analytics</span>
@@ -266,6 +270,10 @@
             <a href="/admin/payments/reconciliation" class="<?= is_active_route('/admin/payments/reconciliation', $admAct, $admInact) ?>">
                 <span class="text-rose-400">⚖️</span>
                 <span>Reconciliation</span>
+            </a>
+            <a href="/admin/gateways" class="<?= is_active_route(['/admin/gateways'], $admAct, $admInact) ?>">
+                <span class="text-rose-400">⚡</span>
+                <span>Payment Gateways</span>
             </a>
             <a href="/admin/analytics" class="<?= is_active_route('/admin/analytics', $admAct, $admInact, ['/admin/analytics/users']) ?>">
                 <span class="text-rose-400">📊</span>

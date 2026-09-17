@@ -39,20 +39,26 @@
                                 <div class="font-bold text-white"><?= e($t['title'] ?? $t['name']) ?></div>
                                 <div class="text-[11px] text-slate-400 mt-0.5"><?= e($t['description'] ?? '') ?></div>
                             </td>
-                            <td class="py-3.5 px-4 font-mono text-indigo-400 text-xs"><code><?= e($t['expression']) ?></code></td>
+                            <td class="py-3.5 px-4 font-mono text-indigo-400 text-xs"><code><?= e($t['cron_expression'] ?? $t['expression'] ?? '* * * * *') ?></code></td>
                             <td class="py-3.5 px-4">
-                                <?php if ($t['last_run_status'] === 'success'): ?>
+                                <?php 
+                                $status = $t['last_status'] ?? $t['last_run_status'] ?? 'pending';
+                                if ($status === 'success'): ?>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">SUCCESS</span>
-                                <?php elseif ($t['last_run_status'] === 'failed'): ?>
+                                <?php elseif ($status === 'failed'): ?>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">FAILED</span>
                                 <?php else: ?>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-800 text-slate-400">PENDING</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-3.5 px-4 font-mono text-slate-400 text-[11px]"><?= $t['last_run_at'] ? substr($t['last_run_at'], 0, 16) : 'Never' ?></td>
-                            <td class="py-3.5 px-4 font-mono text-slate-300"><?= $t['last_duration_seconds'] ? number_format((float)$t['last_duration_seconds'], 2) . 's' : '-' ?></td>
+                            <td class="py-3.5 px-4 font-mono text-slate-400 text-[11px]"><?= !empty($t['last_run_at']) ? substr($t['last_run_at'], 0, 16) : 'Never' ?></td>
+                            <?php 
+                            $duration = $t['last_duration'] ?? ($t['last_duration_seconds'] ?? null); 
+                            ?>
+                            <td class="py-3.5 px-4 font-mono text-slate-300"><?= $duration !== null ? number_format((float)$duration, 2) . 's' : '-' ?></td>
                             <td class="py-3.5 px-4 text-center">
-                                <span class="w-2 h-2 rounded-full inline-block <?= $t['is_active'] ? 'bg-emerald-500 animate-pulse' : 'bg-slate-600' ?>"></span>
+                                <?php $isActive = !empty($t['is_enabled'] ?? $t['is_active']); ?>
+                                <span class="w-2 h-2 rounded-full inline-block <?= $isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-600' ?>"></span>
                             </td>
                             <td class="py-3.5 px-4 text-right space-x-2">
                                 <form action="/admin/cron/<?= $t['id'] ?>/trigger" method="POST" class="inline">
@@ -64,7 +70,7 @@
                                 <form action="/admin/cron/<?= $t['id'] ?>/toggle" method="POST" class="inline">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold transition border border-slate-700">
-                                        <?= $t['is_active'] ? 'Disable' : 'Enable' ?>
+                                        <?= $isActive ? 'Disable' : 'Enable' ?>
                                     </button>
                                 </form>
                             </td>

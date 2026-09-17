@@ -1,3 +1,6 @@
+<?php
+$staff_users = $staff_users ?? ($staff ?? []);
+?>
 <div class="space-y-6 max-w-6xl mx-auto" id="admin-rbac-roles">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

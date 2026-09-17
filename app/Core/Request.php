@@ -107,6 +107,12 @@ class Request
         return $all[$key] ?? $default;
     }
 
+    public function has(string $key): bool
+    {
+        $all = $this->all();
+        return array_key_exists($key, $all) && $all[$key] !== '' && $all[$key] !== null;
+    }
+
     public function json(): array
     {
         if ($this->jsonParams === null) {

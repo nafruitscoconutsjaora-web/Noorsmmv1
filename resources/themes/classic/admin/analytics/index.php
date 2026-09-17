@@ -1,3 +1,11 @@
+<?php
+$metrics = $metrics ?? [
+    'total_revenue' => $stats['financials']['total_revenue'] ?? 0,
+    'estimated_profit' => ($stats['financials']['total_revenue'] ?? 0) * 0.25,
+    'total_orders' => $stats['financials']['total_orders'] ?? 0,
+    'completion_rate' => !empty($stats['financials']['total_orders']) ? (($stats['financials']['completed_orders'] ?? 0) / $stats['financials']['total_orders'] * 100) : 0,
+];
+?>
 <div class="space-y-6 max-w-7xl mx-auto" id="admin-advanced-analytics">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

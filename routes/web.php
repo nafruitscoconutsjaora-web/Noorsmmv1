@@ -53,6 +53,7 @@ $router->group(['middleware' => [AuthMiddleware::class, MaintenanceMiddleware::c
     $router->get('/wallet', [WalletController::class, 'index']);
     $router->post('/wallet/initiate', [WalletController::class, 'initiatePayment'], [CsrfMiddleware::class]);
     $router->post('/wallet/verify', [WalletController::class, 'verifyPayment'], [CsrfMiddleware::class]);
+    $router->get('/wallet/verify', [WalletController::class, 'verifyPayment']);
     $router->post('/wallet/test-deposit', [WalletController::class, 'testDeposit'], [CsrfMiddleware::class]);
 
     // Support Tickets

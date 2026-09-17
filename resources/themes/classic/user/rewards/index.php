@@ -1,3 +1,14 @@
+<?php
+$tier = $tier ?? [
+    'name' => 'bronze',
+    'threshold' => 0,
+    'next_threshold' => 5000,
+    'next_tier' => 'silver',
+];
+$points = $points ?? 0;
+$lifetimeSpent = $lifetimeSpent ?? 0.0;
+$transactions = $transactions ?? [];
+?>
 <div class="space-y-6 max-w-5xl mx-auto" id="loyalty-rewards-page">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

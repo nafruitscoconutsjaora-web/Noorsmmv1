@@ -57,9 +57,20 @@ class ReferralRepository
         $stmtPayouts->execute([':user_id' => $userId]);
         $payouts = $stmtPayouts->fetchAll(PDO::FETCH_ASSOC);
 
+        $paidOrPending = 0.0;
+        foreach ($payouts as $po) {
+            if (in_array($po['status'] ?? '', ['paid', 'pending', 'processing'])) {
+                $paidOrPending += (float)($po['amount'] ?? 0);
+            }
+        }
+        $totalEarnings = (float)($stats['total_earnings'] ?? 0);
+        $availableBalance = max(0.0, $totalEarnings - $paidOrPending);
+
         return [
             'total_referred' => (int)($stats['total_referred'] ?? 0),
-            'total_earnings' => (float)($stats['total_earnings'] ?? 0),
+            'total_earnings' => $totalEarnings,
+            'total_earned' => $totalEarnings,
+            'available_balance' => $availableBalance,
             'referrals' => $referrals,
             'payouts' => $payouts,
         ];

@@ -1,3 +1,19 @@
+<?php
+$stats = $stats ?? [
+    'total_referred' => $total_referred ?? 0,
+    'total_earned' => $total_earnings ?? 0,
+    'total_earnings' => $total_earnings ?? 0,
+    'available_balance' => 0.0,
+    'unpaid_earnings' => 0,
+    'completed_payouts' => 0,
+];
+$stats['total_earned'] = $stats['total_earned'] ?? ($stats['total_earnings'] ?? 0);
+$stats['available_balance'] = $stats['available_balance'] ?? ($stats['total_earned'] ?? 0);
+$referrals = $referrals ?? [];
+$payouts = $payouts ?? [];
+$commission_rate = $commission_rate ?? 5.0;
+$referral_link = $referral_link ?? '';
+?>
 <div class="space-y-6 max-w-5xl mx-auto" id="referrals-page">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

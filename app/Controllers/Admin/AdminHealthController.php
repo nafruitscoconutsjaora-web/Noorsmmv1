@@ -24,6 +24,7 @@ class AdminHealthController extends BaseController
 
         return view('admin/system/health', [
             'health' => $health,
+            'providers' => $health['providers'] ?? [],
         ], 'admin');
     }
 }

@@ -27,11 +27,19 @@ class AdminReferralController extends BaseController
         $allReferrals = $this->referrals->getAllAdmin();
         $payouts = $this->referrals->getPayoutsAdmin();
         $commissionRate = (float)setting('referral_commission_rate', 5.0);
+        $totalCommissionPaid = (float)$this->db->query("SELECT COALESCE(SUM(amount), 0) FROM `referral_payouts` WHERE `status` = 'paid'")->fetchColumn();
+
+        $stats = [
+            'total_referrals' => count($allReferrals),
+            'total_commission_paid' => $totalCommissionPaid,
+            'commission_rate' => $commissionRate,
+        ];
 
         return view('admin/referrals/index', [
             'referrals' => $allReferrals,
             'payouts' => $payouts,
             'commission_rate' => $commissionRate,
+            'stats' => $stats,
         ], 'admin');
     }
 

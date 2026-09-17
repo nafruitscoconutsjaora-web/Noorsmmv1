@@ -1,3 +1,14 @@
+<?php
+$stats = $stats ?? [
+    'total_user_balance' => 0.0,
+    'total_users' => 0,
+    'avg_balance' => 0.0,
+];
+$transactions = $transactions ?? [];
+$users = $users ?? [];
+$page = $page ?? 1;
+$total_pages = $total_pages ?? 1;
+?>
 <div class="space-y-6 max-w-6xl mx-auto" id="admin-wallet-management-page">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

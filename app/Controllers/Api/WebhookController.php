@@ -18,16 +18,34 @@ class WebhookController extends BaseController
         $this->paymentService = new PaymentService();
     }
 
+    /**
+     * Legacy Razorpay webhook endpoint
+     */
     public function razorpay(Request $request): Response
     {
-        $rawPayload = (string)file_get_contents('php://input');
-        $signature = (string)$request->header('X-Razorpay-Signature', '');
+        return $this->handleGatewayWebhook($request, 'razorpay');
+    }
 
-        $handled = $this->paymentService->handleRazorpayWebhook($rawPayload, $signature);
+    /**
+     * Universal webhook handler for all 46+ payment gateways
+     */
+    public function handleGatewayWebhook(Request $request, string $gateway): Response
+    {
+        $gatewayCode = strtolower(trim($gateway));
+        $handled = $this->paymentService->handleWebhook($gatewayCode, $request);
+
         if ($handled) {
-            return $this->json(['status' => 'success']);
+            return $this->json([
+                'status' => 'success',
+                'gateway' => $gatewayCode,
+                'timestamp' => time(),
+            ]);
         }
 
-        return $this->json(['error' => 'Webhook processing failed or invalid signature'], 400);
+        return $this->json([
+            'status' => 'failed',
+            'gateway' => $gatewayCode,
+            'error' => 'Webhook verification failed or transaction not completed',
+        ], 400);
     }
 }

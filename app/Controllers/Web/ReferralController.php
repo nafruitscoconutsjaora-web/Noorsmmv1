@@ -30,6 +30,7 @@ class ReferralController extends BaseController
         return view('user/referrals/index', [
             'referral_code' => $code,
             'referral_link' => $referralLink,
+            'stats' => $stats,
             'total_referred' => $stats['total_referred'],
             'total_earnings' => $stats['total_earnings'],
             'referrals' => $stats['referrals'],

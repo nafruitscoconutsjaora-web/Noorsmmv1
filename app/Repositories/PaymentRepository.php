@@ -17,53 +17,103 @@ class PaymentRepository
 
     public function create(array $data): int
     {
+        $orderId = $data['order_id'] ?? $data['gateway_order_id'] ?? ('ord_' . bin2hex(random_bytes(10)));
+        $paymentId = $data['payment_id'] ?? $data['transaction_id'] ?? null;
+        $payload = $data['payload'] ?? $data['raw_payload'] ?? null;
+
         $sql = "INSERT INTO `payments` 
-                (`user_id`, `gateway`, `transaction_id`, `gateway_order_id`, `amount`, `fee`, `currency`, `status`, `raw_payload`) 
+                (`user_id`, `gateway`, `order_id`, `payment_id`, `signature`, `amount`, `currency`, `fee`, `bonus`, `wallet_credit`, `status`, `payload`) 
                 VALUES 
-                (:user_id, :gateway, :transaction_id, :gateway_order_id, :amount, :fee, :currency, :status, :raw_payload)";
+                (:user_id, :gateway, :order_id, :payment_id, :signature, :amount, :currency, :fee, :bonus, :wallet_credit, :status, :payload)";
 
         $this->db->execute($sql, [
             ':user_id' => $data['user_id'],
             ':gateway' => $data['gateway'],
-            ':transaction_id' => $data['transaction_id'] ?? null,
-            ':gateway_order_id' => $data['gateway_order_id'] ?? null,
+            ':order_id' => $orderId,
+            ':payment_id' => $paymentId,
+            ':signature' => $data['signature'] ?? null,
             ':amount' => $data['amount'],
-            ':fee' => $data['fee'] ?? '0.00000000',
             ':currency' => $data['currency'] ?? 'INR',
+            ':fee' => $data['fee'] ?? '0.00000000',
+            ':bonus' => $data['bonus'] ?? '0.00000000',
+            ':wallet_credit' => $data['wallet_credit'] ?? ($data['amount'] ?? '0.00000000'),
             ':status' => $data['status'] ?? 'pending',
-            ':raw_payload' => $data['raw_payload'] ?? null,
+            ':payload' => is_array($payload) ? json_encode($payload) : $payload,
         ]);
 
         return (int)$this->db->lastInsertId();
     }
 
+    private function mapAliases(?array $row): ?array
+    {
+        if (!$row) {
+            return null;
+        }
+        $row['gateway_order_id'] = $row['order_id'] ?? '';
+        $row['transaction_id'] = $row['payment_id'] ?? '';
+        $row['raw_payload'] = $row['payload'] ?? '';
+        return $row;
+    }
+
     public function findById(int $id): ?array
     {
-        return $this->db->fetchOne("SELECT * FROM `payments` WHERE `id` = :id", [':id' => $id]);
+        return $this->mapAliases($this->db->fetchOne("SELECT * FROM `payments` WHERE `id` = :id", [':id' => $id]));
     }
 
-    public function findByGatewayOrderId(string $gatewayOrderId): ?array
+    public function findByGatewayOrderId(string $gatewayOrderId, ?string $fallbackId = null): ?array
     {
-        return $this->db->fetchOne(
-            "SELECT * FROM `payments` WHERE `gateway_order_id` = :id",
-            [':id' => $gatewayOrderId]
-        );
+        $payment = $this->mapAliases($this->db->fetchOne(
+            "SELECT * FROM `payments` WHERE `order_id` = :id1 OR `payment_id` = :id2",
+            [':id1' => $gatewayOrderId, ':id2' => $gatewayOrderId]
+        ));
+
+        if (!$payment && $fallbackId) {
+            $payment = $this->mapAliases($this->db->fetchOne(
+                "SELECT * FROM `payments` WHERE `order_id` = :id1 OR `payment_id` = :id2",
+                [':id1' => $fallbackId, ':id2' => $fallbackId]
+            ));
+        }
+
+        if (!$payment) {
+            $payment = $this->mapAliases($this->db->fetchOne(
+                "SELECT * FROM `payments` WHERE JSON_UNQUOTE(JSON_EXTRACT(`payload`, '$.gateway_order_id')) = :id",
+                [':id' => $gatewayOrderId]
+            ));
+        }
+
+        return $payment;
     }
 
-    public function findByGatewayOrderIdForUpdate(string $gatewayOrderId): ?array
+    public function findByGatewayOrderIdForUpdate(string $gatewayOrderId, ?string $fallbackId = null): ?array
     {
-        return $this->db->fetchOne(
-            "SELECT * FROM `payments` WHERE `gateway_order_id` = :id FOR UPDATE",
-            [':id' => $gatewayOrderId]
-        );
+        $payment = $this->mapAliases($this->db->fetchOne(
+            "SELECT * FROM `payments` WHERE `order_id` = :id1 OR `payment_id` = :id2 FOR UPDATE",
+            [':id1' => $gatewayOrderId, ':id2' => $gatewayOrderId]
+        ));
+
+        if (!$payment && $fallbackId) {
+            $payment = $this->mapAliases($this->db->fetchOne(
+                "SELECT * FROM `payments` WHERE `order_id` = :id1 OR `payment_id` = :id2 FOR UPDATE",
+                [':id1' => $fallbackId, ':id2' => $fallbackId]
+            ));
+        }
+
+        if (!$payment) {
+            $payment = $this->mapAliases($this->db->fetchOne(
+                "SELECT * FROM `payments` WHERE JSON_UNQUOTE(JSON_EXTRACT(`payload`, '$.gateway_order_id')) = :id FOR UPDATE",
+                [':id' => $gatewayOrderId]
+            ));
+        }
+
+        return $payment;
     }
 
     public function findByTransactionId(string $txnId): ?array
     {
-        return $this->db->fetchOne(
-            "SELECT * FROM `payments` WHERE `transaction_id` = :id",
-            [':id' => $txnId]
-        );
+        return $this->mapAliases($this->db->fetchOne(
+            "SELECT * FROM `payments` WHERE `payment_id` = :id1 OR `order_id` = :id2",
+            [':id1' => $txnId, ':id2' => $txnId]
+        ));
     }
 
     public function updateStatus(int $id, string $status, ?string $transactionId = null, ?string $rawPayload = null): bool
@@ -72,11 +122,11 @@ class PaymentRepository
         $sql = "UPDATE `payments` SET `status` = :status, `updated_at` = NOW()";
 
         if ($transactionId !== null) {
-            $sql .= ", `transaction_id` = :txn";
+            $sql .= ", `payment_id` = :txn";
             $params[':txn'] = $transactionId;
         }
         if ($rawPayload !== null) {
-            $sql .= ", `raw_payload` = :raw";
+            $sql .= ", `payload` = :raw";
             $params[':raw'] = $rawPayload;
         }
         $sql .= " WHERE `id` = :id";

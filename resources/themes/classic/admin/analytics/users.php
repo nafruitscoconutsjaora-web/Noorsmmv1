@@ -1,3 +1,11 @@
+<?php
+$cohorts = $cohorts ?? [
+    'paying_users_count' => 0,
+    'avg_clv' => 0,
+    'repeat_buyer_rate' => 0,
+];
+$top_users = $top_users ?? ($behavior['high_spenders'] ?? []);
+?>
 <div class="space-y-6 max-w-7xl mx-auto" id="admin-user-analytics">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -42,10 +42,23 @@ class AdminFraudController extends BaseController
         // 3. Security events
         $securityEvents = $this->security->getSecurityEventsAdmin(30);
 
+        $flaggedItems = array_map(function ($ev) {
+            return [
+                'id' => $ev['id'],
+                'created_at' => $ev['created_at'],
+                'user_id' => $ev['user_id'] ?? 0,
+                'username' => $ev['user_name'] ?? 'System',
+                'rule_triggered' => $ev['event_type'] ?? 'Security Event',
+                'severity' => $ev['severity'] ?? 'medium',
+                'metadata' => $ev['details'] ?? $ev['ip_address'] ?? 'N/A',
+            ];
+        }, $securityEvents);
+
         return view('admin/fraud/index', [
             'multi_accounts' => $multiAccounts,
             'velocity_alerts' => $velocityAlerts,
             'security_events' => $securityEvents,
+            'flagged_items' => $flaggedItems,
         ], 'admin');
     }
 }

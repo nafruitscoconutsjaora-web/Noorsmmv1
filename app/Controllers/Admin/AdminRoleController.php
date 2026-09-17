@@ -31,6 +31,7 @@ class AdminRoleController extends BaseController
             'roles' => $roles,
             'permissions' => $permissions,
             'staff' => $staff,
+            'staff_users' => $staff,
             'selected_role_id' => $selectedRoleId,
             'role_permissions' => $rolePermissions,
         ], 'admin');
