@@ -183,3 +183,73 @@ if (!function_exists('order_status_badge')) {
         };
     }
 }
+
+if (!function_exists('current_path')) {
+    function current_path(): string
+    {
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $path = parse_url($uri, PHP_URL_PATH) ?? '/';
+        if (str_starts_with($path, '/public/')) {
+            $path = substr($path, 7);
+        } elseif ($path === '/public') {
+            $path = '/';
+        }
+        $normalized = '/' . trim($path, '/');
+        return $normalized === '' ? '/' : $normalized;
+    }
+}
+
+if (!function_exists('is_active_route')) {
+    function is_active_route(string|array $routes, string $activeClass = '', string $inactiveClass = '', array $exclude = []): string
+    {
+        $current = current_path();
+        foreach ($exclude as $ex) {
+            $exPath = '/' . trim($ex, '/');
+            if ($current === $exPath || str_starts_with($current, $exPath . '/')) {
+                return $inactiveClass;
+            }
+        }
+        $routes = (array)$routes;
+        foreach ($routes as $route) {
+            $r = '/' . trim($route, '/');
+            if ($r === '' || $r === '/') {
+                if ($current === '/' || $current === '') {
+                    return $activeClass;
+                }
+            } elseif ($r === '/admin' || $r === '/admin/dashboard') {
+                if ($current === '/admin' || $current === '/admin/dashboard') {
+                    return $activeClass;
+                }
+            } elseif ($r === '/dashboard') {
+                if ($current === '/dashboard') {
+                    return $activeClass;
+                }
+            } else {
+                if ($current === $r || str_starts_with($current, $r . '/')) {
+                    return $activeClass;
+                }
+            }
+        }
+        return $inactiveClass;
+    }
+}
+
+if (!function_exists('admin_can')) {
+    function admin_can(string $permission = ''): bool
+    {
+        $admin = auth_admin();
+        if (!$admin) {
+            return false;
+        }
+        $roleId = (int)($admin['role_id'] ?? 0);
+        if ($roleId === 1) {
+            return true;
+        }
+        // Superadmin role 1 can do everything
+        // For non-superadmin:
+        if (in_array($permission, ['settings', 'roles', 'maintenance', 'wallets', 'pricing'], true)) {
+            return false;
+        }
+        return true;
+    }
+}

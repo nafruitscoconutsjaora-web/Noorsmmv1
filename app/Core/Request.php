@@ -27,6 +27,11 @@ class Request
 
         $this->uri = $_SERVER['REQUEST_URI'] ?? '/';
         $path = parse_url($this->uri, PHP_URL_PATH) ?? '/';
+        if (str_starts_with($path, '/public/')) {
+            $path = substr($path, 7);
+        } elseif ($path === '/public') {
+            $path = '/';
+        }
         $this->path = '/' . trim($path, '/');
         if ($this->path === '') {
             $this->path = '/';
