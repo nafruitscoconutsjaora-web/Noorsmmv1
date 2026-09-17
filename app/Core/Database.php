@@ -30,8 +30,6 @@ class Database
                 PDO::ATTR_EMULATE_PREPARES => false,
             ],
         ]);
-
-        $this->connect();
     }
 
     public static function getInstance(): self

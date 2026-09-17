@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "description": "Production SMM Panel built with Native PHP 8, PDO, MySQL, and Tailwind CSS",
   "scripts": {
-    "dev": "bash -c 'service mariadb status >/dev/null 2>&1 || service mariadb start; exec php -S 0.0.0.0:3000 -t public public/index.php' --",
+    "dev": "bash -c 'service mariadb status >/dev/null 2>&1 || service mariadb start || service mysql start || true; exec php -S 0.0.0.0:3000 -t public public/index.php' --",
     "build": "bash -c 'echo \"Building SMM Panel...\"; mkdir -p storage/logs storage/cache storage/temp storage/uploads public/assets/themes/classic/css; find app -name \"*.php\" -exec php -l {} \\; >/dev/null 2>&1 || true; echo \"Build complete.\"' --",
     "lint": "bash -c 'find app -name \"*.php\" -exec php -l {} \\; >/dev/null 2>&1 || true; echo \"Lint successful.\"' --",
-    "start": "bash -c 'service mariadb status >/dev/null 2>&1 || service mariadb start; exec php -S 0.0.0.0:3000 -t public public/index.php' --"
+    "start": "bash -c 'service mariadb status >/dev/null 2>&1 || service mariadb start || service mysql start || true; exec php -S 0.0.0.0:3000 -t public public/index.php' --"
   }
 }

@@ -7,6 +7,12 @@ declare(strict_types=1);
 define('APP_START', microtime(true));
 
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+
+// Serve static assets if requested through PHP built-in server
+if (is_string($uri) && $uri !== '/' && is_file(__DIR__ . $uri)) {
+    return false;
+}
+
 if (is_string($uri) && (str_starts_with($uri, '/install') || $uri === '/install')) {
     $installFile = dirname(__DIR__) . $uri;
     if (is_dir($installFile)) {
@@ -18,6 +24,16 @@ if (is_string($uri) && (str_starts_with($uri, '/install') || $uri === '/install'
         require $installFile;
         exit;
     }
+}
+
+// If .env is missing or not installed, automatically redirect to installer
+$baseDir = dirname(__DIR__);
+$envFile = $baseDir . '/.env';
+$isInstalled = file_exists($envFile) && filesize($envFile) > 20;
+
+if (!$isInstalled) {
+    header('Location: /install/index.php');
+    exit;
 }
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
