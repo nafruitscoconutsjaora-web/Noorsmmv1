@@ -61,9 +61,15 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
     // Payments & Payment Gateways Management
     $router->get('/admin/payments', [AdminPaymentController::class, 'index']);
     $router->get('/admin/gateways', [\App\Controllers\Admin\AdminGatewayController::class, 'index']);
+    $router->get('/admin/payment-gateways', [\App\Controllers\Admin\AdminGatewayController::class, 'index']);
+    $router->get('/admin/payment-gateway', [\App\Controllers\Admin\AdminGatewayController::class, 'index']);
+    $router->get('/admin/payments/gateways', [\App\Controllers\Admin\AdminGatewayController::class, 'index']);
     $router->get('/admin/gateways/{id}/edit', [\App\Controllers\Admin\AdminGatewayController::class, 'edit']);
+    $router->get('/admin/payment-gateways/{id}/edit', [\App\Controllers\Admin\AdminGatewayController::class, 'edit']);
     $router->post('/admin/gateways/{id}/update', [\App\Controllers\Admin\AdminGatewayController::class, 'update'], [CsrfMiddleware::class]);
+    $router->post('/admin/payment-gateways/{id}/update', [\App\Controllers\Admin\AdminGatewayController::class, 'update'], [CsrfMiddleware::class]);
     $router->post('/admin/gateways/{id}/toggle', [\App\Controllers\Admin\AdminGatewayController::class, 'toggle'], [CsrfMiddleware::class]);
+    $router->post('/admin/payment-gateways/{id}/toggle', [\App\Controllers\Admin\AdminGatewayController::class, 'toggle'], [CsrfMiddleware::class]);
 
     // Support Tickets
     $router->get('/admin/tickets', [AdminTicketController::class, 'index']);
@@ -87,6 +93,7 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
 
     // 5. Payment & Reconciliation
     $router->get('/admin/payments/reconciliation', [\App\Controllers\Admin\AdminReconciliationController::class, 'index']);
+    $router->get('/admin/reconciliation', [\App\Controllers\Admin\AdminReconciliationController::class, 'index']);
     $router->post('/admin/payments/{id}/reconcile', [\App\Controllers\Admin\AdminReconciliationController::class, 'reconcile'], [CsrfMiddleware::class]);
 
     // 6. Advanced Wallet Management & Ledger
@@ -95,6 +102,9 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
 
     // 7. Cron Management
     $router->get('/admin/cron', [\App\Controllers\Admin\AdminCronController::class, 'index']);
+    $router->get('/admin/cron-tasks', [\App\Controllers\Admin\AdminCronController::class, 'index']);
+    $router->get('/admin/cron-task', [\App\Controllers\Admin\AdminCronController::class, 'index']);
+    $router->get('/admin/crons', [\App\Controllers\Admin\AdminCronController::class, 'index']);
     $router->post('/admin/cron/{id}/toggle', [\App\Controllers\Admin\AdminCronController::class, 'toggle'], [CsrfMiddleware::class]);
     $router->post('/admin/cron/{id}/trigger', [\App\Controllers\Admin\AdminCronController::class, 'trigger'], [CsrfMiddleware::class]);
 
@@ -108,6 +118,9 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
 
     // 12. Referral & Commission Management
     $router->get('/admin/referrals', [\App\Controllers\Admin\AdminReferralController::class, 'index']);
+    $router->get('/admin/affiliate', [\App\Controllers\Admin\AdminReferralController::class, 'index']);
+    $router->get('/admin/affiliates', [\App\Controllers\Admin\AdminReferralController::class, 'index']);
+    $router->get('/admin/affiliate-network', [\App\Controllers\Admin\AdminReferralController::class, 'index']);
     $router->post('/admin/referrals/rate', [\App\Controllers\Admin\AdminReferralController::class, 'updateCommissionRate'], [CsrfMiddleware::class]);
     $router->post('/admin/referrals/{id}/payout', [\App\Controllers\Admin\AdminReferralController::class, 'processPayout'], [CsrfMiddleware::class]);
 
@@ -116,20 +129,33 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
 
     // 14. Auto-Refill & Cancellation Management
     $router->get('/admin/refills', [\App\Controllers\Admin\AdminRefillController::class, 'index']);
+    $router->get('/admin/refill', [\App\Controllers\Admin\AdminRefillController::class, 'index']);
+    $router->get('/admin/refills-cancels', [\App\Controllers\Admin\AdminRefillController::class, 'index']);
+    $router->get('/admin/refill-cancel', [\App\Controllers\Admin\AdminRefillController::class, 'index']);
     $router->post('/admin/refills/{id}/status', [\App\Controllers\Admin\AdminRefillController::class, 'updateRefill'], [CsrfMiddleware::class]);
     $router->post('/admin/cancellations/{id}/status', [\App\Controllers\Admin\AdminRefillController::class, 'updateCancellation'], [CsrfMiddleware::class]);
 
     // 15. Subscription & Scheduled Order Management
     $router->get('/admin/schedules', [\App\Controllers\Admin\AdminScheduleController::class, 'index']);
+    $router->get('/admin/schedule', [\App\Controllers\Admin\AdminScheduleController::class, 'index']);
+    $router->get('/admin/drip', [\App\Controllers\Admin\AdminScheduleController::class, 'index']);
+    $router->get('/admin/drip-schedule', [\App\Controllers\Admin\AdminScheduleController::class, 'index']);
+    $router->get('/admin/drip-schedules', [\App\Controllers\Admin\AdminScheduleController::class, 'index']);
     $router->post('/admin/schedules/{id}/toggle', [\App\Controllers\Admin\AdminScheduleController::class, 'toggle'], [CsrfMiddleware::class]);
 
     // 16. Website Content Management (FAQs, KB)
     $router->get('/admin/content', [\App\Controllers\Admin\AdminContentController::class, 'index']);
+    $router->get('/admin/help', [\App\Controllers\Admin\AdminContentController::class, 'index']);
+    $router->get('/admin/help-cms', [\App\Controllers\Admin\AdminContentController::class, 'index']);
+    $router->get('/admin/faqs', [\App\Controllers\Admin\AdminContentController::class, 'index']);
     $router->post('/admin/content/article', [\App\Controllers\Admin\AdminContentController::class, 'saveArticle'], [CsrfMiddleware::class]);
     $router->post('/admin/content/faq', [\App\Controllers\Admin\AdminContentController::class, 'saveFaq'], [CsrfMiddleware::class]);
 
     // 17. Email & Communication Management
     $router->get('/admin/email', [\App\Controllers\Admin\AdminEmailController::class, 'index']);
+    $router->get('/admin/emails', [\App\Controllers\Admin\AdminEmailController::class, 'index']);
+    $router->get('/admin/email-campaign', [\App\Controllers\Admin\AdminEmailController::class, 'index']);
+    $router->get('/admin/email-campaigns', [\App\Controllers\Admin\AdminEmailController::class, 'index']);
     $router->post('/admin/email/template/{id}', [\App\Controllers\Admin\AdminEmailController::class, 'updateTemplate'], [CsrfMiddleware::class]);
     $router->post('/admin/email/test', [\App\Controllers\Admin\AdminEmailController::class, 'testEmail'], [CsrfMiddleware::class]);
 
@@ -147,12 +173,19 @@ $router->group(['middleware' => [AdminMiddleware::class]], function ($router) {
 
     // 21. Fraud & Abuse Monitoring
     $router->get('/admin/fraud', [\App\Controllers\Admin\AdminFraudController::class, 'index']);
+    $router->get('/admin/fraud-monitor', [\App\Controllers\Admin\AdminFraudController::class, 'index']);
 
     // 22. Maintenance & Backup Management
     $router->get('/admin/maintenance', [\App\Controllers\Admin\AdminMaintenanceController::class, 'index']);
+    $router->get('/admin/maintenance-backup', [\App\Controllers\Admin\AdminMaintenanceController::class, 'index']);
+    $router->get('/admin/backup', [\App\Controllers\Admin\AdminMaintenanceController::class, 'index']);
+    $router->get('/admin/backups', [\App\Controllers\Admin\AdminMaintenanceController::class, 'index']);
     $router->post('/admin/maintenance/toggle', [\App\Controllers\Admin\AdminMaintenanceController::class, 'toggleMaintenance'], [CsrfMiddleware::class]);
     $router->post('/admin/maintenance/backup', [\App\Controllers\Admin\AdminMaintenanceController::class, 'createBackup'], [CsrfMiddleware::class]);
 
     // Global API Monitoring
     $router->get('/admin/api-management', [\App\Controllers\Admin\AdminApiCenterController::class, 'index']);
+    $router->get('/admin/api', [\App\Controllers\Admin\AdminApiCenterController::class, 'index']);
+    $router->get('/admin/api-consumers', [\App\Controllers\Admin\AdminApiCenterController::class, 'index']);
+    $router->get('/admin/api-consumer', [\App\Controllers\Admin\AdminApiCenterController::class, 'index']);
 });

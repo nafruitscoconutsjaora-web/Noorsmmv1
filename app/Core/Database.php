@@ -157,4 +157,9 @@ class Database
     {
         return $this->getConnection()->lastInsertId();
     }
+
+    public function __call(string $name, array $arguments): mixed
+    {
+        return $this->getConnection()->$name(...$arguments);
+    }
 }
