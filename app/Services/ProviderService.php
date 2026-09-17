@@ -159,6 +159,34 @@ class ProviderService
         ];
     }
 
+    /**
+     * Request refill on provider
+     */
+    public function sendRefill(array $provider, string $providerOrderId): array
+    {
+        $res = $this->request($provider['api_url'], [
+            'key' => $provider['api_key'],
+            'action' => 'refill',
+            'order' => $providerOrderId,
+        ]);
+
+        return $res['data'] ?? ['error' => 'No response from provider'];
+    }
+
+    /**
+     * Request cancel on provider
+     */
+    public function sendCancel(array $provider, string $providerOrderId): array
+    {
+        $res = $this->request($provider['api_url'], [
+            'key' => $provider['api_key'],
+            'action' => 'cancel',
+            'order' => $providerOrderId,
+        ]);
+
+        return $res['data'] ?? ['error' => 'No response from provider'];
+    }
+
     private function request(string $url, array $params): array
     {
         return $this->http->post($url, $params);
